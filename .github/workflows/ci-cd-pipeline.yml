@@ -62,7 +62,6 @@
 #         env:
 #           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 #           SLACK_MESSAGE: "🚀 Deployment to production completed!"
-
 name: CI/CD Pipeline
 
 on:
@@ -98,7 +97,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Dependencies
-        run: pip install -r requirements.txt  # Install dependencies again if needed
+        run: pip install -r requirements.txt
 
       - name: Install Snyk CLI
         run: npm install -g snyk
