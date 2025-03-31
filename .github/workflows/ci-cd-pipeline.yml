@@ -1,0 +1,66 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  # Step 1: Run Tests
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Tests
+        run: pytest
+
+  # Step 2: Perform Security Scan
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Bandit
+        run: pip install bandit
+
+      - name: Run Security Scan
+        run: bandit -r .
+
+  # Step 3: Deploy to Staging
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: security-scan
+    steps:
+      - name: Simulate Deployment to Staging
+        run: echo "✅ Deployed to Staging Environment"
+
+  # Step 4: Deploy to Production
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    steps:
+      - name: Simulate Deployment to Production
+        run: echo "🚀 Deployed to Production Environment"
+
+  # Step 5: Send Slack Notification
+  notify:
+    runs-on: ubuntu-latest
+    needs: deploy-production
+    steps:
+      - name: Send Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_MESSAGE: "🚀 Deployment to production completed!"
