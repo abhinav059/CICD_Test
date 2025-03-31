@@ -62,5 +62,5 @@ jobs:
       - name: Send Slack Notification
         uses: rtCamp/action-slack-notify@v2
         env:
-          SLACK_WEBHOOK_URL: "https://hooks.slack.com/services/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"
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_MESSAGE: "🚀 Deployment to production completed!"
