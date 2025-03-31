@@ -113,9 +113,16 @@ jobs:
 
       - name: Install Bandit
         run: pip install bandit
+      
+      - name: Install Snyk
+        run: |
+          npm install -g snyk
 
       - name: Run Bandit Scan
         run: bandit -r .
+
+      - name: Run Snyk Security Scan
+        run: snyk test
 
   # Step 4: Simulate Deployment to Staging
   deploy-staging:
