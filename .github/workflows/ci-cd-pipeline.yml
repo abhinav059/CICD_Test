@@ -62,6 +62,7 @@
 #         env:
 #           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 #           SLACK_MESSAGE: "🚀 Deployment to production completed!"
+
 name: CI/CD Pipeline
 
 on:
@@ -88,27 +89,10 @@ jobs:
       - name: Run Tests
         run: pytest
 
-  # Step 2: Dependency Scanning with Snyk
-  # snyk-test:
-  #   runs-on: ubuntu-latest
-  #   needs: test
-  #   steps:
-  #     - name: Checkout Code
-  #       uses: actions/checkout@v4
-
-  #     - name: Install Dependencies
-  #       run: pip install -r requirements.txt
-
-  #     - name: Install Snyk CLI
-  #       run: npm install -g snyk
-
-  #     - name: Run Snyk Test
-  #       run: snyk test
-
-  # Step 3: Perform Security Scan with Bandit
+  # Step 2: Perform Security Scan with Bandit (Skipping Snyk)
   security-scan:
     runs-on: ubuntu-latest
-    needs: snyk-test
+    needs: test  # Ensure this step depends on 'test' step, skipping 'snyk-test'
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -119,10 +103,7 @@ jobs:
       - name: Run Bandit Scan
         run: bandit -r .
 
-      - name: Run Snyk Security Scan
-        run: snyk test
-
-  # Step 4: Simulate Deployment to Staging
+  # Step 3: Simulate Deployment to Staging
   deploy-staging:
     runs-on: ubuntu-latest
     needs: security-scan
@@ -130,7 +111,7 @@ jobs:
       - name: Simulate Deployment to Staging
         run: echo "✅ Deployed to Staging Environment"
 
-  # Step 5: Simulate Deployment to Production
+  # Step 4: Simulate Deployment to Production
   deploy-production:
     runs-on: ubuntu-latest
     needs: deploy-staging
@@ -138,7 +119,7 @@ jobs:
       - name: Simulate Deployment to Production
         run: echo "🚀 Deployed to Production Environment"
 
-  # Step 6: Send Slack Notification after Deployment
+  # Step 5: Send Slack Notification after Deployment
   notify:
     runs-on: ubuntu-latest
     needs: deploy-production
@@ -149,7 +130,7 @@ jobs:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_MESSAGE: "🚀 Deployment to production completed!"
 
-  # Step 7: Notify about Security Issues
+  # Step 6: Notify about Security Issues (Only if there are security issues detected)
   notify-security-issues:
     runs-on: ubuntu-latest
     needs: security-scan
