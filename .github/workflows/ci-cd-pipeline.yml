@@ -1,3 +1,68 @@
+# name: CI/CD Pipeline
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   # Step 1: Run Tests
+#   test:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout Code
+#         uses: actions/checkout@v4
+
+#       - name: Setup Python
+#         uses: actions/setup-python@v5
+#         with:
+#           python-version: '3.11'
+
+#       - name: Install Dependencies
+#         run: pip install -r requirements.txt
+
+#       - name: Run Tests
+#         run: pytest
+
+#   # Perform Security Scan
+#   security-scan:
+#     runs-on: ubuntu-latest
+#     needs: test
+#     steps:
+#       - name: Checkout Code
+#         uses: actions/checkout@v4
+
+#       - name: Install Bandit
+#         run: pip install bandit
+
+#       - name: Run Security Scan
+#         run: bandit -r .
+
+#   deploy-staging:
+#     runs-on: ubuntu-latest
+#     needs: security-scan
+#     steps:
+#       - name: Simulate Deployment to Staging
+#         run: echo "✅ Deployed to Staging Environment"
+
+#   deploy-production:
+#     runs-on: ubuntu-latest
+#     needs: deploy-staging
+#     steps:
+#       - name: Simulate Deployment to Production
+#         run: echo "🚀 Deployed to Production Environment"
+
+#   # Send Slack Notification
+#   notify:
+#     runs-on: ubuntu-latest
+#     needs: deploy-production
+#     steps:
+#       - name: Send Slack Notification
+#         uses: rtCamp/action-slack-notify@v2
+#         env:
+#           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+#           SLACK_MESSAGE: "🚀 Deployment to production completed!"
+
 name: CI/CD Pipeline
 
 on:
@@ -24,10 +89,24 @@ jobs:
       - name: Run Tests
         run: pytest
 
-  # Step 2: Perform Security Scan
-  security-scan:
+  # Step 2: Dependency Scanning with Snyk
+  snyk-scan:
     runs-on: ubuntu-latest
     needs: test
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Snyk
+        run: npm install -g snyk
+
+      - name: Run Snyk Test
+        run: snyk test
+
+  # Step 3: Perform Security Scan with Bandit
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: snyk-scan
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -35,10 +114,10 @@ jobs:
       - name: Install Bandit
         run: pip install bandit
 
-      - name: Run Security Scan
+      - name: Run Bandit Scan
         run: bandit -r .
 
-  # Step 3: Deploy to Staging
+  # Step 4: Simulate Deployment to Staging
   deploy-staging:
     runs-on: ubuntu-latest
     needs: security-scan
@@ -46,7 +125,7 @@ jobs:
       - name: Simulate Deployment to Staging
         run: echo "✅ Deployed to Staging Environment"
 
-  # Step 4: Deploy to Production
+  # Step 5: Simulate Deployment to Production
   deploy-production:
     runs-on: ubuntu-latest
     needs: deploy-staging
@@ -54,7 +133,7 @@ jobs:
       - name: Simulate Deployment to Production
         run: echo "🚀 Deployed to Production Environment"
 
-  # Step 5: Send Slack Notification
+  # Step 6: Send Slack Notification after Deployment
   notify:
     runs-on: ubuntu-latest
     needs: deploy-production
@@ -64,3 +143,15 @@ jobs:
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_MESSAGE: "🚀 Deployment to production completed!"
+
+  # Step 7: Notify about Security Issues
+  notify-security-issues:
+    runs-on: ubuntu-latest
+    needs: security-scan
+    if: failure()  # Only send notification if there are failures (security issues found)
+    steps:
+      - name: Send Slack Notification on Security Issues
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_MESSAGE: "⚠️ Security issues detected during scanning. Please check the results."
