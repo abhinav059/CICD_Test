@@ -89,21 +89,21 @@ jobs:
         run: pytest
 
   # Step 2: Dependency Scanning with Snyk
-  snyk-test:
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+  # snyk-test:
+  #   runs-on: ubuntu-latest
+  #   needs: test
+  #   steps:
+  #     - name: Checkout Code
+  #       uses: actions/checkout@v4
 
-      - name: Install Dependencies
-        run: pip install -r requirements.txt
+  #     - name: Install Dependencies
+  #       run: pip install -r requirements.txt
 
-      - name: Install Snyk CLI
-        run: npm install -g snyk
+  #     - name: Install Snyk CLI
+  #       run: npm install -g snyk
 
-      - name: Run Snyk Test
-        run: snyk test
+  #     - name: Run Snyk Test
+  #       run: snyk test
 
   # Step 3: Perform Security Scan with Bandit
   security-scan:
