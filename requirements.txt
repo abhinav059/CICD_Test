@@ -1,3 +1,4 @@
 pytest>=7.0.0
 bandit>=1.7.0
 flask>=2.1.0
+snyk>=1.800.0
