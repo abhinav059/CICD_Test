@@ -134,7 +134,7 @@ jobs:
   notify-security-issues:
     runs-on: ubuntu-latest
     needs: security-scan
-    if: failure()  # Only send notification if there are failures (security issues found)
+    if: failure()  # Only send notification if there are failures (security issues 
     steps:
       - name: Send Slack Notification on Security Issues
         uses: rtCamp/action-slack-notify@v2
